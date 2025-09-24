@@ -3,7 +3,8 @@ const express = require('express');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
-const partnerRoutes = require('./routes/partner');
+const partnerRequest = require('./routes/partnerRequest');
+const partner = require('./routes/partner');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -11,7 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/partner', partnerRoutes);
+app.use('/api/partnerRequest', partnerRequest);
+app.use('/api/partner', partner);
 app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => res.send('Pixisphere Backend running'));
