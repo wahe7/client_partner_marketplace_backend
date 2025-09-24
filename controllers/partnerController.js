@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 exports.requestPartnerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { service, documents, portfolio } = req.body;
+    const { service, documents, portfolio, tags, city } = req.body;
 
     // Check if request already exists
     const existing = await prisma.partnerProfile.findUnique({ where: { userId } });
@@ -17,6 +17,8 @@ exports.requestPartnerProfile = async (req, res) => {
         service,
         documents: JSON.stringify(documents),
         portfolio: JSON.stringify(portfolio),
+        tags,
+        city,
         status: "PENDING"
       }
     });
@@ -66,5 +68,20 @@ exports.getProfile = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// Partner fetch assigned leads
+exports.getPartnerLeads = async (req, res) => {
+  try {
+    const partnerId = req.user.id;
+    console.log(partnerId);
+    const leads = await prisma.inquiry.findMany({
+      where: { assignedPartners: { has: partnerId } }
+    });
+    res.json(leads);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
