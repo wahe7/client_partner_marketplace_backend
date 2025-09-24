@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int             @id @default(autoincrement())
+  name            String
+  email           String          @unique
+  password        String?         // nullable for OTP users
+  role            Role            @default(CLIENT)
+  partnerProfile  PartnerProfile? // Optional one-to-one relation
+  inquiry         Inquiry[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum Role {
+  CLIENT
+  PARTNER
+  ADMIN
+}
+
+model PartnerProfile {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service   String
+  city      String
+  tags      String[]
+  documents String   // JSON string
+  portfolio String   // JSON string array
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Status {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model Inquiry {
+  id          Int       @id @default(autoincrement())
+  clientId    Int
+  client      User      @relation(fields: [clientId], references: [id] )
+  category    String
+  date        DateTime
+  budget      Float
+  city        String
+  referenceImage String?
+  status      InquiryStatus @default(NEW)
+  assignedPartners Int[]      // array of partner IDs
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum InquiryStatus {
+  NEW
+  RESPONDED
+  BOOKED
+  CLOSED
+}
+
+
